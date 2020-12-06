@@ -20,6 +20,16 @@ export class CanvasComponent implements OnInit {
   canvasHeight = 800;
   canvasWidth = 600;
 
+
+  //Bricks
+
+  BricksRowSize:number;
+  BricksColSize:number;
+  BricksRow=5;
+  BricksCols=5;
+  BricksWIdth:number;
+  Bricksthickness:number;
+
   //paddle details
   paddleX: number;
   paddleY: number;
@@ -42,6 +52,11 @@ export class CanvasComponent implements OnInit {
     this.paddleWidth = 100;
     this.PaddleThickness = 10;
 
+    this.BricksColSize=this.canvasHeight/2.5
+    this.BricksRowSize=this.canvasWidth*0.8
+
+    this.BricksWIdth=this.BricksRowSize/this.BricksCols
+    this.Bricksthickness=this.BricksColSize
     this.BallX = this.canvasWidth / 2;
     this.BallY = this.canvasHeight / 2;
     this.BallSpeedX = 5;
@@ -70,6 +85,8 @@ export class CanvasComponent implements OnInit {
 
     // this.ctx.fill();
 
+
+
     setInterval(() => {
       this.DrawAll();
     }, 1000 / 30);
@@ -91,6 +108,7 @@ export class CanvasComponent implements OnInit {
     //   Math.PI * 2,
     //   'red'
     // );
+      this.DrawBricks()
     fromEvent(this.canvas, 'mousemove').subscribe((x) => {
       this.paddle(x);
     });
@@ -151,6 +169,15 @@ export class CanvasComponent implements OnInit {
     this.ctx.fill();
   }
 
+
+  DrawBricks(){
+    for (var i = 0; i < this.Bricks.length; i++) {
+      for (var j = 0; j < this.Bricks[i].length; j++) {
+        this.DrawRect((100* j)+20, (10 * i)+20, 100, 10, 'red');
+      }
+    }
+
+    }
   DrawRect(
     PositionX: number,
     PositionY: number,
@@ -158,6 +185,8 @@ export class CanvasComponent implements OnInit {
     DimensionY: number,
     Color: string
   ): void {
+
+
     this.ctx.fillStyle = Color;
     this.ctx.fillRect(PositionX, PositionY, DimensionX, DimensionY);
   }

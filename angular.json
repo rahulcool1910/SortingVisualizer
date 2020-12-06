@@ -129,5 +129,8 @@
       }
     }
   },
-  "defaultProject": "SortingVisualizer"
+  "defaultProject": "SortingVisualizer",
+  "cli": {
+    "analytics": "815def3e-8526-4373-a80e-362cc3b07961"
+  }
 }
