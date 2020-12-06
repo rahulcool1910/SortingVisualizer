@@ -6,7 +6,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import { fromEvent } from 'rxjs';
-import { debounceTime, map } from 'rxjs/operators';
+import { debounceTime, map, tap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-canvas',
@@ -27,12 +27,14 @@ export class CanvasComponent implements OnInit {
   PaddleThickness: number;
 
   //ball details
-
   BallX;
   BallY;
   BallSpeedX;
   BallSpeedY;
   BallRadius;
+
+  //bricks
+  Bricks: Array<Array<any>>;
 
   constructor() {
     this.paddleX = 550;
@@ -45,6 +47,12 @@ export class CanvasComponent implements OnInit {
     this.BallSpeedX = 5;
     this.BallSpeedY = 5;
     this.BallRadius = 20;
+
+    this.Bricks = new Array(5);
+    for (let i = 0; i < this.Bricks.length; i++) {
+      this.Bricks[i] = new Array(5);
+    }
+    console.log(this.Bricks);
   }
 
   ngOnInit(): void {
@@ -75,14 +83,14 @@ export class CanvasComponent implements OnInit {
       this.PaddleThickness,
       'red'
     );
-    this.DrawCircle(
-      this.BallX,
-      this.BallY,
-      this.BallRadius,
-      0,
-      Math.PI * 2,
-      'red'
-    );
+    // this.DrawCircle(
+    //   this.BallX,
+    //   this.BallY,
+    //   this.BallRadius,
+    //   0,
+    //   Math.PI * 2,
+    //   'red'
+    // );
     fromEvent(this.canvas, 'mousemove').subscribe((x) => {
       this.paddle(x);
     });
@@ -132,6 +140,10 @@ export class CanvasComponent implements OnInit {
       this.BallY > this.paddleY
     ) {
       this.BallSpeedY *= -1;
+      const center = this.paddleX + this.paddleWidth / 2;
+      this.BallSpeedX = (this.BallX - center) * 0.35;
+      if (this.BallSpeedX < 5) {
+      }
     }
     this.ctx.fillStyle = Color;
     this.ctx.beginPath();
