@@ -17,8 +17,8 @@ export class CanvasComponent implements OnInit {
   //canvas details
   canvas: any;
   ctx: any;
-  canvasHeight = 800;
-  canvasWidth = 600;
+  canvasHeight = 600;
+  canvasWidth = 800;
 
 
   //Bricks
@@ -27,8 +27,9 @@ export class CanvasComponent implements OnInit {
   BricksColSize:number;
   BricksRow=5;
   BricksCols=5;
-  BricksWIdth:number;
-  Bricksthickness:number;
+  BrickWIdth:number;
+  Brickthickness:number;
+  BricksGap:number=10
 
   //paddle details
   paddleX: number;
@@ -52,22 +53,25 @@ export class CanvasComponent implements OnInit {
     this.paddleWidth = 100;
     this.PaddleThickness = 10;
 
-    this.BricksColSize=this.canvasHeight/2.5
-    this.BricksRowSize=this.canvasWidth*0.8
+    this.BricksColSize=this.canvasHeight*0.4
+    this.BricksRowSize=this.canvasWidth
 
-    this.BricksWIdth=this.BricksRowSize/this.BricksCols
-    this.Bricksthickness=this.BricksColSize
+    this.BrickWIdth=this.BricksRowSize/this.BricksCols
+    this.Brickthickness=this.BricksColSize/this.BricksRow
+
+
+    console.log(this.BrickWIdth,this.Brickthickness,this.BricksColSize,this.BricksRowSize)
     this.BallX = this.canvasWidth / 2;
     this.BallY = this.canvasHeight / 2;
     this.BallSpeedX = 5;
     this.BallSpeedY = 5;
     this.BallRadius = 20;
 
-    this.Bricks = new Array(5);
+    this.Bricks = new Array(this.BricksRow);
     for (let i = 0; i < this.Bricks.length; i++) {
-      this.Bricks[i] = new Array(5);
+      this.Bricks[i] = new Array(this.BricksCols);
     }
-    console.log(this.Bricks);
+
   }
 
   ngOnInit(): void {
@@ -75,7 +79,7 @@ export class CanvasComponent implements OnInit {
 
     this.ctx = this.canvas.getContext('2d');
     this.ctx.canvas.height = 600;
-    this.ctx.canvas.width = 1200;
+    this.ctx.canvas.width = 800;
     this.ctx.canvas.style.imageRendering = 'auto';
     this.ctx.translate(0.5, 0.5);
     this.ctx.imageSmoothingEnabled = false;
@@ -109,8 +113,12 @@ export class CanvasComponent implements OnInit {
     //   'red'
     // );
       this.DrawBricks()
-    fromEvent(this.canvas, 'mousemove').subscribe((x) => {
-      this.paddle(x);
+    fromEvent<MouseEvent>(this.canvas, 'mousemove').subscribe(eve => {
+      this.paddle(eve);
+      console.log(eve)
+      console.log(eve.ClientX + ' ' + eve.ClientY, eve.ClientX, eve.ClientY);
+      this.ctx.fillStyle='white';
+     this.ctx.fillText(eve.ClientX+ " "+eve.ClientY ,eve.ClientX ,eve.ClientY);
     });
   }
 
@@ -173,7 +181,9 @@ export class CanvasComponent implements OnInit {
   DrawBricks(){
     for (var i = 0; i < this.Bricks.length; i++) {
       for (var j = 0; j < this.Bricks[i].length; j++) {
-        this.DrawRect((100* j)+20, (10 * i)+20, 100, 10, 'red');
+        // this.DrawRect((this.Brickthickness* j)+20, (10 * i)+20, this.BrickWIdth, this.Brickthickness ,'red');
+        this.DrawRect(this.BrickWIdth*j,this.Brickthickness*i,this.BrickWIdth-this.BricksGap,this.Brickthickness-this.BricksGap,'red')
+        // console.log(this.BrickWIdth, this.Brickthickness);
       }
     }
 
