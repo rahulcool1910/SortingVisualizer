@@ -20,16 +20,23 @@ export class CanvasComponent implements OnInit {
   canvasHeight = 600;
   canvasWidth = 800;
 
+  //Mouse
+
+  MouseX: number = 0;
+  MouseY: number = 0;
 
   //Bricks
 
-  BricksRowSize:number;
-  BricksColSize:number;
-  BricksRow=5;
-  BricksCols=5;
-  BrickWIdth:number;
-  Brickthickness:number;
-  BricksGap:number=10
+  BricksRowSize: number;
+  BricksColSize: number;
+  BricksRow = 5;
+  BricksCols = 5;
+  BrickWIdth: number;
+  Brickthickness: number;
+  BricksGap: number = 10;
+
+  Bricks:Array<Array<boolean>>
+
 
   //paddle details
   paddleX: number;
@@ -45,7 +52,7 @@ export class CanvasComponent implements OnInit {
   BallRadius;
 
   //bricks
-  Bricks: Array<Array<any>>;
+
 
   constructor() {
     this.paddleX = 550;
@@ -53,25 +60,33 @@ export class CanvasComponent implements OnInit {
     this.paddleWidth = 100;
     this.PaddleThickness = 10;
 
-    this.BricksColSize=this.canvasHeight*0.4
-    this.BricksRowSize=this.canvasWidth
+    this.BricksColSize = this.canvasHeight * 0.4;
+    this.BricksRowSize = this.canvasWidth;
 
-    this.BrickWIdth=this.BricksRowSize/this.BricksCols
-    this.Brickthickness=this.BricksColSize/this.BricksRow
+    this.BrickWIdth = this.BricksRowSize / this.BricksCols;
+    this.Brickthickness = this.BricksColSize / this.BricksRow;
+
+    this.Bricks=new Array(this.BricksRow)
+    for(let row=0;row<this.Bricks.length;row++){
+      this.Bricks[row]=new Array(this.BricksCols)
+    }
+    for(let row=0;row<this.Bricks.length;row++){
+    for(let col=0;col<this.Bricks[row].length;col++){
+
+      this.Bricks[row][col]=true
+    }
+    }
 
 
-    console.log(this.BrickWIdth,this.Brickthickness,this.BricksColSize,this.BricksRowSize)
+
+
     this.BallX = this.canvasWidth / 2;
     this.BallY = this.canvasHeight / 2;
     this.BallSpeedX = 5;
     this.BallSpeedY = 5;
-    this.BallRadius = 20;
+    this.BallRadius = 10;
 
-    this.Bricks = new Array(this.BricksRow);
-    for (let i = 0; i < this.Bricks.length; i++) {
-      this.Bricks[i] = new Array(this.BricksCols);
-    }
-
+      this.Bricks[3][2]=false
   }
 
   ngOnInit(): void {
@@ -89,8 +104,6 @@ export class CanvasComponent implements OnInit {
 
     // this.ctx.fill();
 
-
-
     setInterval(() => {
       this.DrawAll();
     }, 1000 / 30);
@@ -104,21 +117,28 @@ export class CanvasComponent implements OnInit {
       this.PaddleThickness,
       'red'
     );
-    // this.DrawCircle(
-    //   this.BallX,
-    //   this.BallY,
-    //   this.BallRadius,
-    //   0,
-    //   Math.PI * 2,
-    //   'red'
-    // );
-      this.DrawBricks()
-    fromEvent<MouseEvent>(this.canvas, 'mousemove').subscribe(eve => {
+    this.DrawCircle(
+      this.BallX,
+      this.BallY,
+      this.BallRadius,
+      0,
+      Math.PI * 2,
+      'Green'
+    );
+    this.DrawBricks();
+    this.ctx.fillStyle = 'white';
+    this.ctx.fillText(
+      Math.floor(this.MouseY / this.Brickthickness) +
+        ' ' +
+        Math.floor(this.MouseX / this.BrickWIdth),
+      this.MouseX + 10,
+      this.MouseY + 10
+    );
+    fromEvent<MouseEvent>(this.canvas, 'mousemove').subscribe((eve) => {
       this.paddle(eve);
-      console.log(eve)
-      console.log(eve.ClientX + ' ' + eve.ClientY, eve.ClientX, eve.ClientY);
-      this.ctx.fillStyle='white';
-     this.ctx.fillText(eve.ClientX+ " "+eve.ClientY ,eve.ClientX ,eve.ClientY);
+      this.MouseX = eve.clientX;
+      this.MouseY = eve.clientY;
+
     });
   }
 
@@ -153,6 +173,26 @@ export class CanvasComponent implements OnInit {
       this.BallSpeedY *= -1;
     }
 
+    let BallXpos=Math.floor(this.BallY / this.Brickthickness)
+    let BallYpos=Math.floor(this.BallX / this.BrickWIdth)
+    if (
+      BallXpos >= 0 &&
+      BallXpos <= this.BricksRow - 1 &&
+      BallYpos >= 0 &&
+      BallYpos <= this.BricksCols - 1
+    ) {
+
+      if (
+      this.Bricks[BallXpos][
+        BallYpos
+      ]
+      ){
+        this.Bricks[BallXpos][BallYpos]=false
+        this.BallSpeedY *= -1;
+
+      }
+    }
+
     const paddleTopLeft = this.paddleX;
     const paddleBottomLeft = this.paddleX;
     const paddleTopRight = this.paddleX + this.paddleWidth;
@@ -169,6 +209,7 @@ export class CanvasComponent implements OnInit {
       const center = this.paddleX + this.paddleWidth / 2;
       this.BallSpeedX = (this.BallX - center) * 0.35;
       if (this.BallSpeedX < 5) {
+        this.BallSpeedX=5
       }
     }
     this.ctx.fillStyle = Color;
@@ -177,17 +218,23 @@ export class CanvasComponent implements OnInit {
     this.ctx.fill();
   }
 
-
-  DrawBricks(){
+  DrawBricks() {
     for (var i = 0; i < this.Bricks.length; i++) {
       for (var j = 0; j < this.Bricks[i].length; j++) {
         // this.DrawRect((this.Brickthickness* j)+20, (10 * i)+20, this.BrickWIdth, this.Brickthickness ,'red');
-        this.DrawRect(this.BrickWIdth*j,this.Brickthickness*i,this.BrickWIdth-this.BricksGap,this.Brickthickness-this.BricksGap,'red')
+        if(this.Bricks[i][j]){
+        this.DrawRect(
+          this.BrickWIdth * j,
+          this.Brickthickness * i,
+          this.BrickWIdth - this.BricksGap,
+          this.Brickthickness - this.BricksGap,
+          'red'
+        );
+        }
         // console.log(this.BrickWIdth, this.Brickthickness);
       }
     }
-
-    }
+  }
   DrawRect(
     PositionX: number,
     PositionY: number,
@@ -195,8 +242,6 @@ export class CanvasComponent implements OnInit {
     DimensionY: number,
     Color: string
   ): void {
-
-
     this.ctx.fillStyle = Color;
     this.ctx.fillRect(PositionX, PositionY, DimensionX, DimensionY);
   }
